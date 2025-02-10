@@ -2,6 +2,12 @@
   "name": "kiltau/multisite-preview",
   "description": "Multisite preview button for the Neos backend. Useful for multisites with a data site to manage the content of multiple sites and thus having a possibility to open the preview of the current site in the corresponding frontend.",
   "type": "neos-package",
+  "authors": [
+    {
+      "name": "Dmitrij Kiltau",
+      "email": "dmitrij@kiltau.com"
+    }
+  ],
   "require": {
     "neos/neos-ui": "~8.2"
   },
