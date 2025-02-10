@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "build": "neos-react-scripts build",
+    "watch": "neos-react-scripts watch"
+  },
+  "neos": {
+    "buildTargetDirectory": "../../../Public/PreviewButton"
+  },
+  "devDependencies": {
+    "@neos-project/neos-ui-extensibility": "~8.2.0",
+    "@neos-project/build-essentials": "~8.2.0"
+  }
+}

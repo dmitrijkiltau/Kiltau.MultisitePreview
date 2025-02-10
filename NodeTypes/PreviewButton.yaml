@@ -1,0 +1,12 @@
+Kiltau.MultisitePreview:PreviewButton:
+  properties:
+    previewReferences:
+      type: references
+      ui:
+        label: i18n
+        reloadIfChanged: true
+        inspector:
+          group: document
+          editorOptions:
+            nodeTypes:
+              - 'Kiltau.MultisitePreview:PreviewReference'

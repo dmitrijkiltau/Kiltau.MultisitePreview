@@ -1,0 +1,63 @@
+.secondaryToolbar__buttonLink {
+    position: relative;
+    display: inline-block;
+    height: var(--spacing-GoldenUnit);
+    line-height: var(--spacing-GoldenUnit);
+    min-width: var(--spacing-GoldenUnit);
+    padding: 0;
+    border: 0;
+    -webkit-font-smoothing: antialiased;
+    vertical-align: top;
+    width: var(--spacing-GoldenUnit);
+    color: var(--colors-ContrastBrightest);
+    text-align: center;
+    background: transparent;
+    cursor: pointer;
+
+    &:focus {
+        outline: unset;
+    }
+}
+
+button.secondaryToolbar__buttonLink[aria-active="true"],
+button.secondaryToolbar__buttonLink:hover,
+a.secondaryToolbar__buttonLink:hover {
+    background: var(--colors-PrimaryBlue);
+}
+
+.secondaryToolbar__buttonLink--isDisabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.secondaryToolbar__dropDown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 70;
+    border: 1px solid #323232;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-shadow: 0 5px 5px #0003;
+
+    li {
+      background: #141414;
+      border-top: 1px solid #222;
+    }
+
+    .secondaryToolbar__buttonLink {
+        min-width: max-content;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 40px auto;
+        align-items: center;
+        padding-right: 20px;
+        text-align: start;
+
+        svg {
+            align-self: center;
+            justify-self: center;
+        }
+    }
+}

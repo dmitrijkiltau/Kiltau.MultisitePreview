@@ -1,0 +1,73 @@
+.MultisitePreview__secondaryToolbar__buttonLink___1xAH_ {
+    position: relative;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    min-width: 40px;
+    padding: 0;
+    border: 0;
+    -webkit-font-smoothing: antialiased;
+    vertical-align: top;
+    width: 40px;
+    color: #FFF;
+    text-align: center;
+    background: transparent;
+    cursor: pointer;
+}
+
+    .MultisitePreview__secondaryToolbar__buttonLink___1xAH_:focus {
+        outline: unset;
+    }
+
+button.MultisitePreview__secondaryToolbar__buttonLink___1xAH_[aria-active="true"] {
+    background: #00ADEE;
+}
+
+button.MultisitePreview__secondaryToolbar__buttonLink___1xAH_:hover {
+    background: #00ADEE;
+}
+
+a.MultisitePreview__secondaryToolbar__buttonLink___1xAH_:hover {
+    background: #00ADEE;
+}
+
+.MultisitePreview__secondaryToolbar__buttonLink--isDisabled___1KvmJ {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+.MultisitePreview__secondaryToolbar__dropDown___1s2zP {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 70;
+    border: 1px solid #323232;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-shadow: 0 5px 5px #0003;
+}
+
+.MultisitePreview__secondaryToolbar__dropDown___1s2zP li {
+      background: #141414;
+      border-top: 1px solid #222;
+    }
+
+.MultisitePreview__secondaryToolbar__dropDown___1s2zP .MultisitePreview__secondaryToolbar__buttonLink___1xAH_ {
+        min-width: -moz-max-content;
+        min-width: max-content;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 40px auto;
+        align-items: center;
+        padding-right: 20px;
+        text-align: start;
+    }
+
+.MultisitePreview__secondaryToolbar__dropDown___1s2zP .MultisitePreview__secondaryToolbar__buttonLink___1xAH_ svg {
+            align-self: center;
+            justify-self: center;
+        }
+
+
+/*# sourceMappingURL=Plugin.css.map*/

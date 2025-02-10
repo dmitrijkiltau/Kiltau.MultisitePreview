@@ -1,0 +1,16 @@
+Neos:
+  Neos:
+    userInterface:
+      translation:
+        autoInclude:
+          'Kiltau.MultisitePreview':
+            - 'NodeTypes/*'
+    Ui:
+      resources:
+        javascript:
+          'Kiltau.MultisitePreview:PreviewButton':
+            resource: resource://Kiltau.MultisitePreview/Public/PreviewButton/Plugin.js
+        stylesheets:
+          'Kiltau.MultisitePreview:PreviewButton':
+            resource: resource://Kiltau.MultisitePreview/Public/PreviewButton/Plugin.css
+  
