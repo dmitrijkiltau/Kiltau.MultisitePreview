@@ -7,7 +7,8 @@ import mergeClassNames from 'classnames';
 
 @neos(globalRegistry => ({
 	i18nRegistry: globalRegistry.get('i18n'),
-	dataLoaders: globalRegistry.get('dataLoaders')
+	dataLoaders: globalRegistry.get('dataLoaders'),
+	serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers')
 }))
 
 @connect(state => ({
@@ -19,7 +20,8 @@ export default class PreviewButton extends PureComponent {
 		previewUrl: PropTypes.string,
 		i18nRegistry: PropTypes.object.isRequired,
 		dataLoaders: PropTypes.object.isRequired,
-		crNodes: PropTypes.object.isRequired
+		crNodes: PropTypes.object.isRequired,
+		serverFeedbackHandlers: PropTypes.object.isRequired
 	};
 
 	state = {
@@ -34,18 +36,38 @@ export default class PreviewButton extends PureComponent {
 
 		if (!siteIdentifiers) return;
 
-		siteIdentifiers.forEach(siteIdentifier => dataLoaders.get('NodeLookup').resolveValue({}, siteIdentifier).then(result => {
-			const site = {
-				name: result[0].label,
-				uri: currentSite[0].uri.replace(/(h\w+:\/\/.+?\/)/, result[0].uri)
-			};
-			this.setState({ sites: [...this.state.sites, site] });
-		}));
+		const sites = await Promise.all(
+			siteIdentifiers.map(async siteIdentifier => {
+				const result = await dataLoaders.get('NodeLookup').resolveValue({}, siteIdentifier);
+				return {
+					name: result[0].label,
+					uri: currentSite[0].uri.replace(/(h\w+:\/\/.+?\/)/, result[0].uri)
+				};
+			})
+		);
+
+		this.setState({ sites });
 	}
 
-	componentDidMount() {
+	async componentDidMount() {
+		const { dataLoaders, crNodes, serverFeedbackHandlers } = this.props;
+		await this.getSites(dataLoaders, crNodes, serverFeedbackHandlers);
+
+		serverFeedbackHandlers.set('Kiltau.PreviewReferencesUpdate', async (feedbackPayload, { store }) => {
+			const state = store.getState();
+			const { crNodes } = this.props;
+
+			if (feedbackPayload.contextPath === state.cr.nodes.documentNode) {
+				await this.getSites(dataLoaders, crNodes);
+			}
+		});
+	}
+
+	async componentDidUpdate(prevProps) {
 		const { dataLoaders, crNodes } = this.props;
-		this.getSites(dataLoaders, crNodes);
+		if (prevProps.crNodes !== crNodes) {
+			await this.getSites(dataLoaders, crNodes);
+		}
 	}
 
 	toggleDropDown = () => {
@@ -66,11 +88,11 @@ export default class PreviewButton extends PureComponent {
 			[style['secondaryToolbar__buttonLink--isDisabled']]: !previewUrl
 		});
 
-		if (preview.length === 1) {
+		if (preview.length < 2) {
 			return (
 				<a
 					id="neos-PreviewButton"
-					href={preview[0].uri ? preview[0].uri : ''}
+					href={previewUrl ? previewUrl : ''}
 					target="neosPreview"
 					className={previewButtonClassNames}
 					aria-label={showPreviewText}
@@ -99,7 +121,7 @@ export default class PreviewButton extends PureComponent {
 						style={{ display: this.state.showDropDown === false ? 'none' : '' }}
 					>
 						{preview.map(site => (
-							<li>
+							<li key={site.name}>
 								<a
 									key={site.name}
 									href={site.uri}

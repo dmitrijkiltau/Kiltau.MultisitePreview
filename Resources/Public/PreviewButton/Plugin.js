@@ -936,7 +936,8 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry) {
 	return {
 		i18nRegistry: globalRegistry.get('i18n'),
-		dataLoaders: globalRegistry.get('dataLoaders')
+		dataLoaders: globalRegistry.get('dataLoaders'),
+		serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers')
 	};
 }), _dec2 = (0, _reactRedux.connect)(function (state) {
 	return {
@@ -965,32 +966,75 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 
 			if (!siteIdentifiers) return;
 
-			siteIdentifiers.forEach(function (siteIdentifier) {
-				return dataLoaders.get('NodeLookup').resolveValue({}, siteIdentifier).then(function (result) {
-					var site = {
+			var sites = yield Promise.all(siteIdentifiers.map(function () {
+				var _ref = _asyncToGenerator(function* (siteIdentifier) {
+					var result = yield dataLoaders.get('NodeLookup').resolveValue({}, siteIdentifier);
+					return {
 						name: result[0].label,
 						uri: currentSite[0].uri.replace(/(h\w+:\/\/.+?\/)/, result[0].uri)
 					};
-					_this2.setState({ sites: [].concat(_toConsumableArray(_this2.state.sites), [site]) });
 				});
-			});
+
+				return function (_x) {
+					return _ref.apply(this, arguments);
+				};
+			}()));
+
+			_this2.setState({ sites: sites });
 		})();
 	}
 
 	componentDidMount() {
-		var _props = this.props,
-		    dataLoaders = _props.dataLoaders,
-		    crNodes = _props.crNodes;
+		var _this3 = this;
 
-		this.getSites(dataLoaders, crNodes);
+		return _asyncToGenerator(function* () {
+			var _props = _this3.props,
+			    dataLoaders = _props.dataLoaders,
+			    crNodes = _props.crNodes,
+			    serverFeedbackHandlers = _props.serverFeedbackHandlers;
+
+			yield _this3.getSites(dataLoaders, crNodes, serverFeedbackHandlers);
+
+			serverFeedbackHandlers.set('Kiltau.PreviewReferencesUpdate', function () {
+				var _ref3 = _asyncToGenerator(function* (feedbackPayload, _ref2) {
+					var store = _ref2.store;
+
+					var state = store.getState();
+					var crNodes = _this3.props.crNodes;
+
+
+					if (feedbackPayload.contextPath === state.cr.nodes.documentNode) {
+						yield _this3.getSites(dataLoaders, crNodes);
+					}
+				});
+
+				return function (_x2, _x3) {
+					return _ref3.apply(this, arguments);
+				};
+			}());
+		})();
+	}
+
+	componentDidUpdate(prevProps) {
+		var _this4 = this;
+
+		return _asyncToGenerator(function* () {
+			var _props2 = _this4.props,
+			    dataLoaders = _props2.dataLoaders,
+			    crNodes = _props2.crNodes;
+
+			if (prevProps.crNodes !== crNodes) {
+				yield _this4.getSites(dataLoaders, crNodes);
+			}
+		})();
 	}
 
 	render() {
 		var _mergeClassNames;
 
-		var _props2 = this.props,
-		    previewUrl = _props2.previewUrl,
-		    i18nRegistry = _props2.i18nRegistry;
+		var _props3 = this.props,
+		    previewUrl = _props3.previewUrl,
+		    i18nRegistry = _props3.i18nRegistry;
 
 		var showPreviewText = i18nRegistry.translate('Neos.Neos:Main:showPreview', 'Show preview');
 
@@ -1001,12 +1045,12 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 
 		var previewButtonClassNames = (0, _classnames2.default)((_mergeClassNames = {}, _defineProperty(_mergeClassNames, _PreviewButton2.default.secondaryToolbar__buttonLink, true), _defineProperty(_mergeClassNames, _PreviewButton2.default['secondaryToolbar__buttonLink--isDisabled'], !previewUrl), _mergeClassNames));
 
-		if (preview.length === 1) {
+		if (preview.length < 2) {
 			return _react2.default.createElement(
 				'a',
 				{
 					id: 'neos-PreviewButton',
-					href: preview[0].uri ? preview[0].uri : '',
+					href: previewUrl ? previewUrl : '',
 					target: 'neosPreview',
 					className: previewButtonClassNames,
 					'aria-label': showPreviewText,
@@ -1040,7 +1084,7 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 					preview.map(function (site) {
 						return _react2.default.createElement(
 							'li',
-							null,
+							{ key: site.name },
 							_react2.default.createElement(
 								'a',
 								{
@@ -1079,7 +1123,8 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 	previewUrl: _propTypes2.default.string,
 	i18nRegistry: _propTypes2.default.object.isRequired,
 	dataLoaders: _propTypes2.default.object.isRequired,
-	crNodes: _propTypes2.default.object.isRequired
+	crNodes: _propTypes2.default.object.isRequired,
+	serverFeedbackHandlers: _propTypes2.default.object.isRequired
 }, _temp2)) || _class) || _class);
 exports.default = PreviewButton;
 
