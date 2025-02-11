@@ -9,6 +9,7 @@
       "email": "dmitrij@kiltau.com"
     }
   ],
+  "license": "MIT",
   "require": {
     "neos/neos-ui": "~8.2"
   },
