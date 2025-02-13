@@ -1,4 +1,13 @@
-Kiltau.MultisitePreview:PreviewButton:
+"Kiltau.MultisitePreview:PreviewButton":
+  abstract: true
+  ui:
+    inspector:
+      groups:
+        preview:
+          label: i18n
+          icon: icon-eye
+          position: 100
+          tab: meta
   properties:
     previewReferences:
       type: references
@@ -6,7 +15,11 @@ Kiltau.MultisitePreview:PreviewButton:
         label: i18n
         reloadIfChanged: true
         inspector:
-          group: document
+          group: preview
           editorOptions:
             nodeTypes:
-              - 'Kiltau.MultisitePreview:PreviewReference'
+              - "Kiltau.MultisitePreview:PreviewReference"
+
+"Neos.Demo:Document.Chapter":
+  superTypes:
+    "Kiltau.MultisitePreview:PreviewButton": true

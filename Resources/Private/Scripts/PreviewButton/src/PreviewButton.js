@@ -7,8 +7,9 @@ import mergeClassNames from 'classnames';
 
 @neos(globalRegistry => ({
 	i18nRegistry: globalRegistry.get('i18n'),
-	dataLoaders: globalRegistry.get('dataLoaders'),
-	serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers')
+	nodeLookup: globalRegistry.get('dataLoaders').get('NodeLookup'),
+	serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers'),
+  previewReferences: globalRegistry.get('frontendConfiguration').get('Kiltau.MultisitePreview').previewReferences
 }))
 
 @connect(state => ({
@@ -19,9 +20,10 @@ export default class PreviewButton extends PureComponent {
 	static propTypes = {
 		previewUrl: PropTypes.string,
 		i18nRegistry: PropTypes.object.isRequired,
-		dataLoaders: PropTypes.object.isRequired,
+		nodeLookup: PropTypes.object.isRequired,
 		crNodes: PropTypes.object.isRequired,
-		serverFeedbackHandlers: PropTypes.object.isRequired
+		serverFeedbackHandlers: PropTypes.object.isRequired,
+    previewReferences: PropTypes.object.isRequired
 	};
 
 	state = {
@@ -29,16 +31,16 @@ export default class PreviewButton extends PureComponent {
 		showDropDown: false
 	};
 
-	async getSites(dataLoaders, crNodes) {
-		const currentContextNode = crNodes.byContextPath[crNodes.documentNode];
-		const currentSite = await dataLoaders.get('NodeLookup').resolveValue({}, currentContextNode.identifier);
-		const siteIdentifiers = currentContextNode.properties.previewReferences;
+	async getSites(nodeLookup, crNodes, previewReferences) {
+    const currentContextNode = crNodes.byContextPath[crNodes.documentNode];
+		const currentSite = await nodeLookup.resolveValue({}, currentContextNode.identifier);
+		const siteIdentifiers = currentContextNode.properties[previewReferences];
 
 		if (!siteIdentifiers) return;
 
 		const sites = await Promise.all(
 			siteIdentifiers.map(async siteIdentifier => {
-				const result = await dataLoaders.get('NodeLookup').resolveValue({}, siteIdentifier);
+				const result = await nodeLookup.resolveValue({}, siteIdentifier);
 				return {
 					name: result[0].label,
 					uri: currentSite[0].uri.replace(/(h\w+:\/\/.+?\/)/, result[0].uri)
@@ -50,23 +52,22 @@ export default class PreviewButton extends PureComponent {
 	}
 
 	async componentDidMount() {
-		const { dataLoaders, crNodes, serverFeedbackHandlers } = this.props;
-		await this.getSites(dataLoaders, crNodes, serverFeedbackHandlers);
+		const { nodeLookup, crNodes, serverFeedbackHandlers, previewReferences } = this.props;
+		await this.getSites(nodeLookup, crNodes, previewReferences);
 
-		serverFeedbackHandlers.set('Kiltau.PreviewReferencesUpdate', async (feedbackPayload, { store }) => {
+		serverFeedbackHandlers.set('Kiltau.MultisitePreview/PreviewReferencesUpdate', async (feedbackPayload, { store }) => {
 			const state = store.getState();
-			const { crNodes } = this.props;
 
 			if (feedbackPayload.contextPath === state.cr.nodes.documentNode) {
-				await this.getSites(dataLoaders, crNodes);
+				await this.getSites(nodeLookup, crNodes, previewReferences);
 			}
 		});
 	}
 
 	async componentDidUpdate(prevProps) {
-		const { dataLoaders, crNodes } = this.props;
+		const { nodeLookup, crNodes, previewReferences } = this.props;
 		if (prevProps.crNodes !== crNodes) {
-			await this.getSites(dataLoaders, crNodes);
+			await this.getSites(nodeLookup, crNodes, previewReferences);
 		}
 	}
 

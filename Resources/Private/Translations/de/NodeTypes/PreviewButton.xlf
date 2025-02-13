@@ -2,6 +2,11 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file original="" product-name="Kiltau.MultisitePreview" source-language="en" datatype="plaintext" target-language="de">
     <body>
+      <trans-unit id="groups.preview" xml:space="preserve">
+        <source>Preview</source>
+        <target>Vorschau</target>
+      </trans-unit>
+
       <trans-unit id="properties.previewReferences" xml:space="preserve">
         <source>Preview references</source>
         <target>Vorschau-Referenzen</target>

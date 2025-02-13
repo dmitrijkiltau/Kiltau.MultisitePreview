@@ -4,7 +4,7 @@ This package provides a multisite preview button for the Neos backend. Useful fo
 
 ## Usage
 
-### Configuration
+### Default Configuration
 
 #### 1. Add the following to your preview reference node type, e.g. homepage `superTypes`:
 
@@ -21,3 +21,16 @@ This will allow you to select the preview references for your document node type
 ```
 
 This will allow you to select the preview references for your document node type and change the preview button into a dropdown.
+
+### Configuration Override
+
+If you don't want to use the default configuration, you can override the property name in your configuration.
+
+```yaml
+Neos:
+  Neos:
+    Ui:
+      frontendConfiguration:
+        'Kiltau.MultisitePreview':
+          previewReferences: 'yourPropertyName'
+```

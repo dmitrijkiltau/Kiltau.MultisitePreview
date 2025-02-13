@@ -13,4 +13,6 @@ Neos:
         stylesheets:
           'Kiltau.MultisitePreview:PreviewButton':
             resource: resource://Kiltau.MultisitePreview/Public/PreviewButton/Plugin.css
-  
+      frontendConfiguration:
+        'Kiltau.MultisitePreview':
+          previewReferences: 'previewReferences'

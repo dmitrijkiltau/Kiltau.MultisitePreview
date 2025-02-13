@@ -936,8 +936,9 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry) {
 	return {
 		i18nRegistry: globalRegistry.get('i18n'),
-		dataLoaders: globalRegistry.get('dataLoaders'),
-		serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers')
+		nodeLookup: globalRegistry.get('dataLoaders').get('NodeLookup'),
+		serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers'),
+		previewReferences: globalRegistry.get('frontendConfiguration').get('Kiltau.MultisitePreview').previewReferences
 	};
 }), _dec2 = (0, _reactRedux.connect)(function (state) {
 	return {
@@ -956,19 +957,20 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 		}, _temp;
 	}
 
-	getSites(dataLoaders, crNodes) {
+	getSites(nodeLookup, crNodes, previewReferences) {
 		var _this2 = this;
 
 		return _asyncToGenerator(function* () {
+			console.log(crNodes);
 			var currentContextNode = crNodes.byContextPath[crNodes.documentNode];
-			var currentSite = yield dataLoaders.get('NodeLookup').resolveValue({}, currentContextNode.identifier);
-			var siteIdentifiers = currentContextNode.properties.previewReferences;
+			var currentSite = yield nodeLookup.resolveValue({}, currentContextNode.identifier);
+			var siteIdentifiers = currentContextNode.properties[previewReferences];
 
 			if (!siteIdentifiers) return;
 
 			var sites = yield Promise.all(siteIdentifiers.map(function () {
 				var _ref = _asyncToGenerator(function* (siteIdentifier) {
-					var result = yield dataLoaders.get('NodeLookup').resolveValue({}, siteIdentifier);
+					var result = yield nodeLookup.resolveValue({}, siteIdentifier);
 					return {
 						name: result[0].label,
 						uri: currentSite[0].uri.replace(/(h\w+:\/\/.+?\/)/, result[0].uri)
@@ -989,22 +991,21 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 
 		return _asyncToGenerator(function* () {
 			var _props = _this3.props,
-			    dataLoaders = _props.dataLoaders,
+			    nodeLookup = _props.nodeLookup,
 			    crNodes = _props.crNodes,
-			    serverFeedbackHandlers = _props.serverFeedbackHandlers;
+			    serverFeedbackHandlers = _props.serverFeedbackHandlers,
+			    previewReferences = _props.previewReferences;
 
-			yield _this3.getSites(dataLoaders, crNodes, serverFeedbackHandlers);
+			yield _this3.getSites(nodeLookup, crNodes, previewReferences);
 
-			serverFeedbackHandlers.set('Kiltau.PreviewReferencesUpdate', function () {
+			serverFeedbackHandlers.set('Kiltau.MultisitePreview/PreviewReferencesUpdate', function () {
 				var _ref3 = _asyncToGenerator(function* (feedbackPayload, _ref2) {
 					var store = _ref2.store;
 
 					var state = store.getState();
-					var crNodes = _this3.props.crNodes;
-
 
 					if (feedbackPayload.contextPath === state.cr.nodes.documentNode) {
-						yield _this3.getSites(dataLoaders, crNodes);
+						yield _this3.getSites(nodeLookup, crNodes, previewReferences);
 					}
 				});
 
@@ -1020,11 +1021,12 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 
 		return _asyncToGenerator(function* () {
 			var _props2 = _this4.props,
-			    dataLoaders = _props2.dataLoaders,
-			    crNodes = _props2.crNodes;
+			    nodeLookup = _props2.nodeLookup,
+			    crNodes = _props2.crNodes,
+			    previewReferences = _props2.previewReferences;
 
 			if (prevProps.crNodes !== crNodes) {
-				yield _this4.getSites(dataLoaders, crNodes);
+				yield _this4.getSites(nodeLookup, crNodes, previewReferences);
 			}
 		})();
 	}
@@ -1122,9 +1124,10 @@ var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry
 }, _class2.propTypes = {
 	previewUrl: _propTypes2.default.string,
 	i18nRegistry: _propTypes2.default.object.isRequired,
-	dataLoaders: _propTypes2.default.object.isRequired,
+	nodeLookup: _propTypes2.default.object.isRequired,
 	crNodes: _propTypes2.default.object.isRequired,
-	serverFeedbackHandlers: _propTypes2.default.object.isRequired
+	serverFeedbackHandlers: _propTypes2.default.object.isRequired,
+	previewReferences: _propTypes2.default.object.isRequired
 }, _temp2)) || _class) || _class);
 exports.default = PreviewButton;
 
@@ -1176,7 +1179,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 (0, _neosUiExtensibility2.default)('Kiltau.MultisitePreview:PreviewButton', {}, function (globalRegistry) {
   var containerRegistry = globalRegistry.get('containers');
   containerRegistry.set('SecondaryToolbar/Right/PreviewButton', _PreviewButton2.default);
-  console.log(globalRegistry.get('containers'));
 });
 
 /***/ })

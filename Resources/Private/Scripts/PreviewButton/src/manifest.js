@@ -4,5 +4,4 @@ import PreviewButton from './PreviewButton';
 manifest('Kiltau.MultisitePreview:PreviewButton', {}, globalRegistry => {
   const containerRegistry = globalRegistry.get('containers');
   containerRegistry.set('SecondaryToolbar/Right/PreviewButton', PreviewButton);
-  console.log(globalRegistry.get('containers'));
 });
