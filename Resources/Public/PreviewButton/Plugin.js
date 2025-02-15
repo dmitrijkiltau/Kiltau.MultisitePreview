@@ -899,7 +899,7 @@ module.exports = {"secondaryToolbar__buttonLink":"PreviewButton__secondaryToolba
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
 exports.default = undefined;
 
@@ -934,211 +934,225 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 var PreviewButton = (_dec = (0, _neosUiDecorators.neos)(function (globalRegistry) {
-	return {
-		i18nRegistry: globalRegistry.get('i18n'),
-		nodeLookup: globalRegistry.get('dataLoaders').get('NodeLookup'),
-		serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers'),
-		previewReferences: globalRegistry.get('frontendConfiguration').get('Kiltau.MultisitePreview').previewReferences
-	};
+  return {
+    i18nRegistry: globalRegistry.get('i18n'),
+    nodeLookup: globalRegistry.get('dataLoaders').get('NodeLookup'),
+    serverFeedbackHandlers: globalRegistry.get('serverFeedbackHandlers'),
+    previewReferences: globalRegistry.get('frontendConfiguration').get('Kiltau.MultisitePreview').previewReferences
+  };
 }), _dec2 = (0, _reactRedux.connect)(function (state) {
-	return {
-		previewUrl: state.ui.contentCanvas.previewUrl,
-		crNodes: state.cr.nodes
-	};
+  return {
+    previewUrl: state.ui.contentCanvas.previewUrl,
+    crNodes: state.cr.nodes
+  };
 }), _dec(_class = _dec2(_class = (_temp2 = _class2 = class PreviewButton extends _react.PureComponent {
-	constructor() {
-		var _temp, _this;
+  constructor() {
+    var _temp, _this;
 
-		return _temp = _this = super(...arguments), this.state = {
-			sites: [],
-			showDropDown: false
-		}, this.toggleDropDown = function () {
-			_this.setState({ showDropDown: !_this.state.showDropDown });
-		}, _temp;
-	}
+    return _temp = _this = super(...arguments), this.state = {
+      sites: [],
+      showDropDown: false
+    }, this.updateSites = function () {
+      var _ref = _asyncToGenerator(function* (nodeLookup, crNodes, previewReferences) {
+        var currentContextNode = crNodes.byContextPath[crNodes.documentNode];
+        var siteIdentifiers = currentContextNode.properties[previewReferences];
 
-	getSites(nodeLookup, crNodes, previewReferences) {
-		var _this2 = this;
+        if (!siteIdentifiers) return;
 
-		return _asyncToGenerator(function* () {
-			console.log(crNodes);
-			var currentContextNode = crNodes.byContextPath[crNodes.documentNode];
-			var currentSite = yield nodeLookup.resolveValue({}, currentContextNode.identifier);
-			var siteIdentifiers = currentContextNode.properties[previewReferences];
+        var currentSite = yield nodeLookup.resolveValue({}, currentContextNode.identifier);
 
-			if (!siteIdentifiers) return;
+        var sites = yield Promise.all(siteIdentifiers.map(function () {
+          var _ref2 = _asyncToGenerator(function* (siteIdentifier) {
+            var result = yield nodeLookup.resolveValue({}, siteIdentifier);
+            return {
+              name: result[0].label,
+              uri: currentSite[0].uri.replace(/(h\w+:\/\/.+?\/)/, result[0].uri)
+            };
+          });
 
-			var sites = yield Promise.all(siteIdentifiers.map(function () {
-				var _ref = _asyncToGenerator(function* (siteIdentifier) {
-					var result = yield nodeLookup.resolveValue({}, siteIdentifier);
-					return {
-						name: result[0].label,
-						uri: currentSite[0].uri.replace(/(h\w+:\/\/.+?\/)/, result[0].uri)
-					};
-				});
+          return function (_x4) {
+            return _ref2.apply(this, arguments);
+          };
+        }()));
 
-				return function (_x) {
-					return _ref.apply(this, arguments);
-				};
-			}()));
+        _this.setState({ sites: sites });
+      });
 
-			_this2.setState({ sites: sites });
-		})();
-	}
+      return function (_x, _x2, _x3) {
+        return _ref.apply(this, arguments);
+      };
+    }(), this.handlePreviewReferencesUpdate = function () {
+      var _ref4 = _asyncToGenerator(function* (feedbackPayload, _ref3) {
+        var store = _ref3.store;
+        var _props = _this.props,
+            nodeLookup = _props.nodeLookup,
+            crNodes = _props.crNodes,
+            previewReferences = _props.previewReferences;
 
-	componentDidMount() {
-		var _this3 = this;
+        var state = store.getState();
+        if (feedbackPayload.contextPath === state.cr.nodes.documentNode) {
+          yield _this.updateSites(nodeLookup, crNodes, previewReferences);
+        }
+      });
 
-		return _asyncToGenerator(function* () {
-			var _props = _this3.props,
-			    nodeLookup = _props.nodeLookup,
-			    crNodes = _props.crNodes,
-			    serverFeedbackHandlers = _props.serverFeedbackHandlers,
-			    previewReferences = _props.previewReferences;
+      return function (_x5, _x6) {
+        return _ref4.apply(this, arguments);
+      };
+    }(), this.toggleDropDown = function () {
+      _this.setState({ showDropDown: !_this.state.showDropDown });
+    }, _temp;
+  }
 
-			yield _this3.getSites(nodeLookup, crNodes, previewReferences);
+  // Method to handle site fetching logic
 
-			serverFeedbackHandlers.set('Kiltau.MultisitePreview/PreviewReferencesUpdate', function () {
-				var _ref3 = _asyncToGenerator(function* (feedbackPayload, _ref2) {
-					var store = _ref2.store;
 
-					var state = store.getState();
+  componentDidMount() {
+    var _this2 = this;
 
-					if (feedbackPayload.contextPath === state.cr.nodes.documentNode) {
-						yield _this3.getSites(nodeLookup, crNodes, previewReferences);
-					}
-				});
+    return _asyncToGenerator(function* () {
+      var _props2 = _this2.props,
+          nodeLookup = _props2.nodeLookup,
+          crNodes = _props2.crNodes,
+          previewReferences = _props2.previewReferences,
+          serverFeedbackHandlers = _props2.serverFeedbackHandlers;
 
-				return function (_x2, _x3) {
-					return _ref3.apply(this, arguments);
-				};
-			}());
-		})();
-	}
+      yield _this2.updateSites(nodeLookup, crNodes, previewReferences);
 
-	componentDidUpdate(prevProps) {
-		var _this4 = this;
+      // Update the sites on relevant feedback
+      serverFeedbackHandlers.set('Kiltau.MultisitePreview/PreviewReferencesUpdate', _this2.handlePreviewReferencesUpdate);
+    })();
+  }
 
-		return _asyncToGenerator(function* () {
-			var _props2 = _this4.props,
-			    nodeLookup = _props2.nodeLookup,
-			    crNodes = _props2.crNodes,
-			    previewReferences = _props2.previewReferences;
+  componentWillUnmount() {
+    this.props.serverFeedbackHandlers.remove('Kiltau.MultisitePreview/PreviewReferencesUpdate');
+  }
 
-			if (prevProps.crNodes !== crNodes) {
-				yield _this4.getSites(nodeLookup, crNodes, previewReferences);
-			}
-		})();
-	}
+  // Handle updates triggered by server feedback
 
-	render() {
-		var _mergeClassNames;
 
-		var _props3 = this.props,
-		    previewUrl = _props3.previewUrl,
-		    i18nRegistry = _props3.i18nRegistry;
+  componentDidUpdate(prevProps) {
+    var _this3 = this;
 
-		var showPreviewText = i18nRegistry.translate('Neos.Neos:Main:showPreview', 'Show preview');
+    return _asyncToGenerator(function* () {
+      var _props3 = _this3.props,
+          nodeLookup = _props3.nodeLookup,
+          crNodes = _props3.crNodes,
+          previewReferences = _props3.previewReferences;
 
-		var preview = [{
-			name: showPreviewText,
-			uri: previewUrl
-		}].concat(_toConsumableArray(this.state.sites));
+      if (prevProps.crNodes !== crNodes) {
+        yield _this3.updateSites(nodeLookup, crNodes, previewReferences);
+      }
+    })();
+  }
 
-		var previewButtonClassNames = (0, _classnames2.default)((_mergeClassNames = {}, _defineProperty(_mergeClassNames, _PreviewButton2.default.secondaryToolbar__buttonLink, true), _defineProperty(_mergeClassNames, _PreviewButton2.default['secondaryToolbar__buttonLink--isDisabled'], !previewUrl), _mergeClassNames));
+  render() {
+    var _mergeClassNames;
 
-		if (preview.length < 2) {
-			return _react2.default.createElement(
-				'a',
-				{
-					id: 'neos-PreviewButton',
-					href: previewUrl ? previewUrl : '',
-					target: 'neosPreview',
-					className: previewButtonClassNames,
-					'aria-label': showPreviewText,
-					title: showPreviewText
-				},
-				_react2.default.createElement(Icon, { icon: 'external-link-alt' })
-			);
-		}
+    var _props4 = this.props,
+        previewUrl = _props4.previewUrl,
+        i18nRegistry = _props4.i18nRegistry;
 
-		if (preview.length > 1) {
-			return _react2.default.createElement(
-				'div',
-				{ style: { position: 'relative', display: 'inline-block' } },
-				_react2.default.createElement(
-					'button',
-					{
-						id: 'neos-PreviewButton',
-						className: previewButtonClassNames,
-						'aria-label': showPreviewText,
-						onClick: this.toggleDropDown,
-						'aria-active': this.state.showDropDown
-					},
-					_react2.default.createElement(Icon, { icon: 'external-link-alt' })
-				),
-				_react2.default.createElement(
-					'ul',
-					{
-						className: _PreviewButton2.default.secondaryToolbar__dropDown,
-						style: { display: this.state.showDropDown === false ? 'none' : '' }
-					},
-					preview.map(function (site) {
-						return _react2.default.createElement(
-							'li',
-							{ key: site.name },
-							_react2.default.createElement(
-								'a',
-								{
-									key: site.name,
-									href: site.uri,
-									target: 'neosPreview',
-									className: _PreviewButton2.default.secondaryToolbar__buttonLink,
-									'aria-label': site.name,
-									title: site.name
-								},
-								_react2.default.createElement(Icon, { icon: 'external-link-alt' }),
-								_react2.default.createElement(
-									'span',
-									null,
-									site.name
-								)
-							)
-						);
-					})
-				)
-			);
-		}
+    var showPreviewText = i18nRegistry.translate('Neos.Neos:Main:showPreview', 'Show preview');
 
-		return _react2.default.createElement(
-			'button',
-			{
-				id: 'neos-PreviewButton',
-				className: previewButtonClassNames,
-				disabled: true,
-				'aria-label': showPreviewText
-			},
-			_react2.default.createElement(Icon, { icon: 'external-link-alt' })
-		);
-	}
+    var preview = [{
+      name: showPreviewText,
+      uri: previewUrl
+    }].concat(_toConsumableArray(this.state.sites));
+
+    var previewButtonClassNames = (0, _classnames2.default)((_mergeClassNames = {}, _defineProperty(_mergeClassNames, _PreviewButton2.default.secondaryToolbar__buttonLink, true), _defineProperty(_mergeClassNames, _PreviewButton2.default['secondaryToolbar__buttonLink--isDisabled'], !previewUrl), _mergeClassNames));
+
+    // Render the preview button based on the number of sites
+    if (preview.length < 2) {
+      return _react2.default.createElement(
+        'a',
+        {
+          id: 'neos-PreviewButton',
+          href: previewUrl || '',
+          target: 'neosPreview',
+          className: previewButtonClassNames,
+          'aria-label': showPreviewText,
+          title: showPreviewText
+        },
+        _react2.default.createElement(Icon, null)
+      );
+    }
+
+    return _react2.default.createElement(
+      'div',
+      { style: { position: 'relative', display: 'inline-block' } },
+      _react2.default.createElement(
+        'button',
+        {
+          id: 'neos-PreviewButton',
+          className: previewButtonClassNames,
+          'aria-label': showPreviewText,
+          onClick: this.toggleDropDown,
+          'aria-active': this.state.showDropDown
+        },
+        _react2.default.createElement(Icon, null)
+      ),
+      _react2.default.createElement(
+        'ul',
+        {
+          className: _PreviewButton2.default.secondaryToolbar__dropDown,
+          style: { display: this.state.showDropDown === false ? 'none' : '' }
+        },
+        preview.map(function (site) {
+          return _react2.default.createElement(
+            'li',
+            { key: site.name },
+            _react2.default.createElement(
+              'a',
+              {
+                href: site.uri,
+                target: 'neosPreview',
+                className: _PreviewButton2.default.secondaryToolbar__buttonLink,
+                'aria-label': site.name,
+                title: site.name
+              },
+              _react2.default.createElement(Icon, null),
+              _react2.default.createElement(
+                'span',
+                null,
+                site.name
+              )
+            )
+          );
+        })
+      )
+    );
+  }
 }, _class2.propTypes = {
-	previewUrl: _propTypes2.default.string,
-	i18nRegistry: _propTypes2.default.object.isRequired,
-	nodeLookup: _propTypes2.default.object.isRequired,
-	crNodes: _propTypes2.default.object.isRequired,
-	serverFeedbackHandlers: _propTypes2.default.object.isRequired,
-	previewReferences: _propTypes2.default.object.isRequired
+  previewUrl: _propTypes2.default.string,
+  i18nRegistry: _propTypes2.default.object.isRequired,
+  nodeLookup: _propTypes2.default.object.isRequired,
+  crNodes: _propTypes2.default.object.isRequired,
+  serverFeedbackHandlers: _propTypes2.default.object.isRequired,
+  previewReferences: _propTypes2.default.object.isRequired
 }, _temp2)) || _class) || _class);
+
+// Memoize the Icon component to prevent unnecessary renders
+
 exports.default = PreviewButton;
-
-
-var Icon = function Icon() {
-	return _react2.default.createElement(
-		'svg',
-		{ 'aria-hidden': 'true', focusable: 'false', 'data-prefix': 'fas', 'data-icon': 'external-link-alt', 'class': 'neos-svg-inline--fa neos-fa-external-link-alt fa-w-16 fa-sm iGSxZG_icon _49YZqG_reset external-link-alt', role: 'img', xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 512 512' },
-		_react2.default.createElement('path', { fill: 'currentColor', d: 'M432,320H400a16,16,0,0,0-16,16V448H64V128H208a16,16,0,0,0,16-16V80a16,16,0,0,0-16-16H48A48,48,0,0,0,0,112V464a48,48,0,0,0,48,48H400a48,48,0,0,0,48-48V336A16,16,0,0,0,432,320ZM488,0h-128c-21.37,0-32.05,25.91-17,41l35.73,35.73L135,320.37a24,24,0,0,0,0,34L157.67,377a24,24,0,0,0,34,0L435.28,133.32,471,169c15,15,41,4.5,41-17V24A24,24,0,0,0,488,0Z' })
-	);
-};
+var Icon = _react2.default.memo(function () {
+  return _react2.default.createElement(
+    'svg',
+    {
+      'aria-hidden': 'true',
+      focusable: 'false',
+      'data-prefix': 'fas',
+      'data-icon': 'external-link-alt',
+      className: 'neos-svg-inline--fa neos-fa-external-link-alt fa-w-16 fa-sm iGSxZG_icon _49YZqG_reset external-link-alt',
+      role: 'img',
+      xmlns: 'http://www.w3.org/2000/svg',
+      viewBox: '0 0 512 512'
+    },
+    _react2.default.createElement('path', {
+      fill: 'currentColor',
+      d: 'M432,320H400a16,16,0,0,0-16,16V448H64V128H208a16,16,0,0,0,16-16V80a16,16,0,0,0-16-16H48A48,48,0,0,0,0,112V464a48,48,0,0,0,48,48H400a48,48,0,0,0,48-48V336A16,16,0,0,0,432,320ZM488,0h-128c-21.37,0-32.05,25.91-17,41l35.73,35.73L135,320.37a24,24,0,0,0,0,34L157.67,377a24,24,0,0,0,34,0L435.28,133.32,471,169c15,15,41,4.5,41-17V24A24,24,0,0,0,488,0Z'
+    })
+  );
+});
 
 /***/ }),
 

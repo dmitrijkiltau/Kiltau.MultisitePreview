@@ -19,7 +19,3 @@
           editorOptions:
             nodeTypes:
               - "Kiltau.MultisitePreview:PreviewReference"
-
-"Neos.Demo:Document.Chapter":
-  superTypes:
-    "Kiltau.MultisitePreview:PreviewButton": true
